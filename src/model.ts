@@ -11,10 +11,6 @@ export class Model {
     return new Snapshot(this.size, this.indices, this.override);
   }
 
-  public static restore(snapshot: Snapshot) {
-    return new Model(snapshot.size)
-  }
-
   public static create(size: number = 0, length: number = 0) {
     return new Model(size, length);
   }
@@ -26,4 +22,9 @@ export class Snapshot {
     public readonly indices: number[] = [],
     public readonly override: number[] = [],
   ) { }
+}
+
+export function getItemSize(model: Model, index: number) {
+  const size = model.indices[index]
+  return size === undefined ? model.size : size
 }
