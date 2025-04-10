@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { Table } from "./Table"
 </script>
 
-<template>
-  <div>
 
-  </div>
+<template>
+  <Table />
 </template>

@@ -41,14 +41,15 @@ export function calculateOffset(model: Model, index: number): number {
   return top;
 }
 
-export function calculateViewport(model: Model) {
+export function calculateViewportSize(model: Model) {
   if (!model.length) return 0;
+  return 1
 }
 
 export function calculateIndex(model: Model, offset: number, start: number, end: number = model.length - 1) {
   while (start <= end) {
     let middle = start + ((end - start) >> 1);
-    
+
     const measuredOffset = calculateOffset(model, middle);
     if (measuredOffset <= offset) {
       start = middle + 1
@@ -57,7 +58,7 @@ export function calculateIndex(model: Model, offset: number, start: number, end:
     }
   }
 
-  return 
+  return
 }
 
 export function calculateRange(model: Model, offset: number, viewport: number) {
