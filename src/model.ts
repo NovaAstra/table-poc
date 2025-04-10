@@ -1,6 +1,8 @@
 export class Model {
+  public lastMeasuredIndex: number = -1;
+
   public constructor(
-    public readonly defaultSize: number = 0,
+    public readonly size: number = 0,
     public readonly length: number = 0,
     public readonly indices: number[] = [],
     public readonly offsets: number[] = [],
@@ -13,10 +15,51 @@ export class Model {
 }
 
 export function getItemSize(model: Model, index: number): number {
-  return model.indices[index] ?? model.defaultSize
+  return model.indices[index] ?? model.size
 }
 
 export function setItemSize(model: Model, index: number, size: number): number {
   model.indices[index] = size
   return size;
+}
+
+export function estimateItemSize() { }
+
+export function calculateOffset(model: Model, index: number): number {
+  if (!model.length || index < 0) return 0;
+
+  if (model.lastMeasuredIndex >= index)
+    return model.offsets[index]
+
+  let idx = model.lastMeasuredIndex
+  let top = 0;
+  while (idx++ < index) {
+    top += getItemSize(model, idx)
+    model.offsets[idx] = top
+  }
+
+  return top;
+}
+
+export function calculateViewport(model: Model) {
+  if (!model.length) return 0;
+}
+
+export function calculateIndex(model: Model, offset: number, start: number, end: number = model.length - 1) {
+  while (start <= end) {
+    let middle = start + ((end - start) >> 1);
+    
+    const measuredOffset = calculateOffset(model, middle);
+    if (measuredOffset <= offset) {
+      start = middle + 1
+    } else {
+      end = middle - 1
+    }
+  }
+
+  return 
+}
+
+export function calculateRange(model: Model, offset: number, viewport: number) {
+
 }
