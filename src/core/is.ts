@@ -1,3 +1,5 @@
+import { getDocumentElement } from "./global"
+
 export const isType = (type: string) =>
   (input: unknown) => Object.prototype.toString.call(input) === `[object ${type}]`
 
@@ -11,3 +13,5 @@ export const isTestEnv =
   (typeof window !== 'undefined' && window.jsdom)
 
 export const isIOSWebKit = () => /iP(hone|od|ad)/.test(navigator.userAgent);
+
+export const isSmoothScrollSupported = (): boolean => "scrollBehavior" in getDocumentElement().style;

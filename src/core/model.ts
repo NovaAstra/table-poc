@@ -60,7 +60,3 @@ export function calculateIndex(model: Model, offset: number, start: number, end:
 
   return
 }
-
-export function calculateRange(model: Model, offset: number, viewport: number) {
-
-}
