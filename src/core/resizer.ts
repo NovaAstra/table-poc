@@ -71,6 +71,7 @@ export class GridResizer {
           const item = this.observedItems.get(target);
           if (item) {
             const [rowIndex, colIndex] = item
+            console.log(rowIndex, colIndex)
           }
         }
 

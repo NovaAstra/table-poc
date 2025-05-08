@@ -10,3 +10,5 @@ export enum ScrollDirection {
   SCROLL_DOWN,
   SCROLL_UP
 }
+
+export class Store { }
