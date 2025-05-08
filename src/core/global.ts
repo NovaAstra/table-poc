@@ -1,17 +1,13 @@
 import { isBrowserEnv, isTestEnv } from './is'
 
-export const getGlobal = (): Window => {
-  if (isBrowserEnv || isTestEnv) return window
-  return {} as unknown as Window;
-}
+export const getGlobal = (): Window => (isBrowserEnv || isTestEnv ? window : {} as Window);
 
 export const global = getGlobal()
 
-export const noop = () => { }
+export const noop = Object.freeze(<T extends unknown[]>(..._: T): void => { });
 
-export const getDocumentElement = () => document.documentElement;
+export const getDocumentElement = (): HTMLElement => document.documentElement;
 
-export const getCurrentDocument = (node: HTMLElement): Document =>
-  node.ownerDocument;
+export const getCurrentDocument = (node: Node): Document => node.ownerDocument ?? document;
 
-export const getCurrentWindow = (doc: Document) => doc.defaultView!;
+export const getCurrentWindow = (doc: Document): Window & typeof globalThis => doc.defaultView ?? window;
