@@ -1,17 +1,15 @@
+import { min } from "./math"
+
 export class Model {
   public lastMeasuredIndex: number = -1;
 
   public constructor(
-    public readonly size: number = 0,
-    public readonly length: number = 0,
+    public readonly length: number,
+    public readonly size: number,
     public readonly indices: number[] = [],
     public readonly offsets: number[] = [],
     public readonly override: number[] = [],
   ) { }
-
-  public static create(size: number = 0, length: number = 0) {
-    return new Model(size, length);
-  }
 }
 
 export function getItemSize(model: Model, index: number): number {
@@ -58,5 +56,24 @@ export function calculateIndex(model: Model, offset: number, start: number, end:
     }
   }
 
-  return
+  return 0
+}
+
+export function calculateRange(
+  model: Model,
+  scrollOffset: number,
+  viewportSize: number,
+  lastVisibleStartIndex: number
+) {
+  lastVisibleStartIndex = min([lastVisibleStartIndex, model.length - 1]);
+
+  if (calculateOffset(model, lastVisibleStartIndex) <= scrollOffset) {
+    const end = calculateIndex(model, scrollOffset + viewportSize, lastVisibleStartIndex)
+    return [calculateIndex(model, scrollOffset, lastVisibleStartIndex), end]
+  } else {
+    const start = calculateIndex(model, scrollOffset, 0, lastVisibleStartIndex);
+    return [start, calculateIndex(model, scrollOffset + viewportSize, start)];
+  }
+
+  return [0, 0]
 }

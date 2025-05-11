@@ -1,3 +1,10 @@
+export type * from "./types"
+
 export * from "./resizer"
+export * from "./scroller"
+export * from "./element"
+export * from "./global"
 export * from "./store"
 export * from "./model"
+export * from "./math"
+export * from "./is"

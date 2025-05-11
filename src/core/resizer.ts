@@ -1,3 +1,4 @@
+import { type VirtualStore, ActionType } from "./store"
 import { isElement } from "./element"
 import { getCurrentWindow, getCurrentDocument } from "./global"
 
@@ -60,13 +61,17 @@ export class GridResizer {
   private viewport: HTMLElement | undefined
   private readonly observedItems = new WeakMap<Element, [rowIndex: number, colIndex: number]>();
 
-  public constructor() {
+  public constructor(
+    public readonly vStore: VirtualStore,
+    public readonly hStore: VirtualStore,
+  ) {
     const callback = (entries: ResizeObserverEntry[]) => {
       for (const { target, contentRect } of entries) {
         if (!(target as HTMLElement).offsetParent) continue;
 
         if (target === this.viewport) {
-
+          this.vStore.update(ActionType.VIEWPORT_RESIZE, contentRect.width);
+          this.hStore.update(ActionType.VIEWPORT_RESIZE, contentRect.height);
         } else {
           const item = this.observedItems.get(target);
           if (item) {
