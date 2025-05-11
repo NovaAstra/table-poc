@@ -1,3 +1,4 @@
+import { type ItemsRange } from "./types"
 import { min } from "./math"
 
 export class Model {
@@ -44,7 +45,12 @@ export function calculateViewportSize(model: Model) {
   return 1
 }
 
-export function calculateIndex(model: Model, offset: number, start: number, end: number = model.length - 1) {
+export function calculateIndex(
+  model: Model,
+  offset: number,
+  start: number,
+  end: number = model.length - 1
+) {
   while (start <= end) {
     let middle = start + ((end - start) >> 1);
 
@@ -64,7 +70,7 @@ export function calculateRange(
   scrollOffset: number,
   viewportSize: number,
   lastVisibleStartIndex: number
-) {
+): ItemsRange {
   lastVisibleStartIndex = min([lastVisibleStartIndex, model.length - 1]);
 
   if (calculateOffset(model, lastVisibleStartIndex) <= scrollOffset) {
@@ -74,6 +80,4 @@ export function calculateRange(
     const start = calculateIndex(model, scrollOffset, 0, lastVisibleStartIndex);
     return [start, calculateIndex(model, scrollOffset + viewportSize, start)];
   }
-
-  return [0, 0]
 }
