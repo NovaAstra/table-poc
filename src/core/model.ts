@@ -1,5 +1,5 @@
 import { type ItemsRange } from "./types"
-import { min } from "./math"
+import { min, clamp } from "./math"
 
 export class Model {
   public lastMeasuredIndex: number = -1;
@@ -31,24 +31,28 @@ export function calculateOffset(model: Model, index: number): number {
     return model.offsets[index]
 
   let idx = model.lastMeasuredIndex
-  let top = 0;
+  let top = model.offsets[index];
   while (idx++ < index) {
     top += getItemSize(model, idx)
     model.offsets[idx] = top
   }
 
+  model.lastMeasuredIndex = index
   return top;
 }
 
 export function calculateViewportSize(model: Model) {
   if (!model.length) return 0;
-  return 1
+  return (
+    calculateOffset(model, model.length - 1) +
+    getItemSize(model, model.length - 1)
+  )
 }
 
 export function calculateIndex(
   model: Model,
   offset: number,
-  start: number,
+  start: number = 0,
   end: number = model.length - 1
 ) {
   while (start <= end) {
@@ -56,13 +60,17 @@ export function calculateIndex(
 
     const measuredOffset = calculateOffset(model, middle);
     if (measuredOffset <= offset) {
+      if (measuredOffset + getItemSize(model, middle) > offset) {
+        return middle;
+      }
+
       start = middle + 1
     } else {
       end = middle - 1
     }
   }
 
-  return 0
+  return clamp(start, 0, model.length - 1)
 }
 
 export function calculateRange(

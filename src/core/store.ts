@@ -77,6 +77,6 @@ export class Store implements VirtualStore {
   }
 
   private calculateRange(offset: number) {
-    return calculateRange(this.model, offset, this.viewportSize);
+    return calculateRange(this.model, offset, this.viewportSize, 0);
   }
 }
