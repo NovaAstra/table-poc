@@ -3,7 +3,6 @@ import { Model, calculateRange } from "./model"
 import { min, max } from "./math"
 
 export const ESTIMATED_SIZE = 40
-
 export const OVERSCAN = 4
 
 export enum ActionType {
@@ -17,7 +16,6 @@ export enum ScrollDirection {
 }
 
 export type Action<T extends ActionType, P> = [type: T, payload: P];
-
 export type Actions =
   | Action<ActionType.VIEWPORT_RESIZE, number>
 
@@ -32,18 +30,7 @@ const actions = {
 };
 
 export abstract class VirtualStore {
-  public abstract update<K extends ActionType>(type: K, payload: Extract<Actions, [K, any]>[1]): void;
-  public abstract update(...actions: Actions): void;
-
-  public abstract getRange(): ItemsRange;
-}
-
-export class Store implements VirtualStore {
   public readonly model: Model
-
-  public viewportSize: number = 0
-
-  public scrollDirection: ScrollDirection = ScrollDirection.SCROLL_IDLE;
 
   public constructor(
     public readonly length: number,
@@ -52,6 +39,17 @@ export class Store implements VirtualStore {
   ) {
     this.model = new Model(length, size)
   }
+
+  public abstract update<K extends ActionType>(type: K, payload: Extract<Actions, [K, any]>[1]): void;
+  public abstract update(...actions: Actions): void;
+
+  public abstract getRange(): ItemsRange;
+}
+
+export class Store extends VirtualStore {
+  public viewportSize: number = 0
+
+  public scrollDirection: ScrollDirection = ScrollDirection.SCROLL_IDLE;
 
   public getRange() {
     let startIndex: number = 0;
