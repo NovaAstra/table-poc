@@ -12,6 +12,8 @@ export const isTestEnv =
   // @ts-expect-error: jsdom
   (typeof window !== 'undefined' && window.jsdom)
 
+export const isFirefox = navigator.userAgent.toLowerCase().indexOf("firefox") > -1;
+
 export const isIOSWebKit = () => /iP(hone|od|ad)/.test(navigator.userAgent);
 
 export const isSmoothScrollSupported = (): boolean => "scrollBehavior" in getDocumentElement().style;

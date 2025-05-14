@@ -1,7 +1,8 @@
 import { Adapter } from "./adapter"
 import { GridResizer } from "./resizer"
 import { Scroller } from "./scroller"
-import { Store, ESTIMATED_SIZE, OVERSCAN } from "./store"
+import { Store } from "./store"
+import { ESTIMATED_SIZE, OVERSCAN } from "./constants"
 
 export type Size = [height: number, width: number]
 
@@ -27,7 +28,6 @@ export class Table {
 
   public constructor(options: TableOptions, adapter: Adapter) {
     const opts = this.getOptions(options)
-    console.log(opts, "opts")
 
     const { row, size, overscan } = opts
     this.hs = new Store(row, size[0], overscan)

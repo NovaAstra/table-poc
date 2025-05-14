@@ -18,8 +18,7 @@ export function getItemSize(model: Model, index: number): number {
 }
 
 export function setItemSize(model: Model, index: number, size: number): number {
-  model.indices[index] = size
-  return size;
+  return model.indices[index] = size;
 }
 
 export function estimateItemSize() { }
@@ -41,7 +40,7 @@ export function calculateOffset(model: Model, index: number): number {
   return top;
 }
 
-export function calculateViewportSize(model: Model) {
+export function calculateSizes(model: Model) {
   if (!model.length) return 0;
   return (
     calculateOffset(model, model.length - 1) +
