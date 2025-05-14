@@ -11,6 +11,6 @@ declare global {
 
 const nano = window.nano || {};
 const nanol = new Loader();
-window.nanol = nanol;
 
+window.nanol = nanol;
 window.nano = createNano(nano);

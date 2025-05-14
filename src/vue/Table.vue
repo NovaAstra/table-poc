@@ -1,17 +1,15 @@
 <script lang="ts" setup>
-import { ref } from "vue";
-import { useVirtualTable } from "./useVirtualTable"
+import { useTable } from "./useTable";
 
-const tableViewportRef = ref<HTMLElement>()
-
-useVirtualTable()
+const { root } = useTable({
+  row: 1000,
+  col: 1000,
+});
 </script>
 
 <template>
-  <div ref="tableViewportRef">
-    <table>
-
-    </table>
+  <div ref="root">
+    <table></table>
   </div>
 </template>
 
