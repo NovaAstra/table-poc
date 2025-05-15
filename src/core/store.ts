@@ -16,17 +16,17 @@ export enum ScrollDirection {
 
 export type Subscriber = (sync?: boolean) => void;
 
-export type Action<T extends ActionType, P> = Readonly<{ type: T, payload: P }>;
+export type Action<T extends ActionType, P> = Readonly<[type: T, payload: P]>;
 
 export type Actions =
   | Action<ActionType.VIEWPORT_RESIZE, number>
   | Action<ActionType.VIEWPORT_ITEM_RESIZE, ItemResize[]>
 
-export type Payload<T extends ActionType> = Extract<Actions, { type: T }>['payload']
+export type Payload<T extends ActionType> = Extract<Actions, { type: T }>[1]
 
 export interface VirtualStore {
   getRange(): ItemsRange;
-  update(actions: Actions): void;
+  update(...actions: Actions): void;
 }
 
 export class Store implements VirtualStore {
@@ -67,7 +67,9 @@ export class Store implements VirtualStore {
     ] as ItemsRange;
   }
 
-  public update({ type, payload }: Actions): void {
+  public update(): void {
+    const [type, payload] = arguments as unknown as Actions;
+
     let mutated: number = 0
     let shouldSync: boolean = false;
 
