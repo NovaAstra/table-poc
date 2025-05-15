@@ -1,7 +1,6 @@
 import { type ItemsRange, type ItemResize } from "./types"
-import { type Signal, Adapter } from "./adapter"
-import { Model, calculateRange } from "./model"
-import { ESTIMATED_SIZE, OVERSCAN } from "./constants"
+import { Model, calculateRange, setItemSize } from "./model"
+import { ESTIMATED_SIZE, OVERSCAN, UPDATE_SIZE_EVENT, UPDATE_VIRTUAL_STATE } from "./constants"
 import { min, max } from "./math"
 
 export enum ActionType {
@@ -15,48 +14,33 @@ export enum ScrollDirection {
   SCROLL_UP
 }
 
-export type Action<T extends ActionType, P> = { type: T, payload: P };
+export type Action<T extends ActionType, P> = Readonly<{ type: T, payload: P }>;
+
 export type Actions =
   | Action<ActionType.VIEWPORT_RESIZE, number>
-  | Action<ActionType.VIEWPORT_ITEM_RESIZE, ItemResize>
+  | Action<ActionType.VIEWPORT_ITEM_RESIZE, ItemResize[]>
 
-const actions = {
-  [ActionType.VIEWPORT_RESIZE](this: Store, size: number) {
-    if (this.viewportSize != size) {
-      this.viewportSize = size
-    }
-  },
-  [ActionType.VIEWPORT_ITEM_RESIZE](this: Store, payload: ItemResize) {
-    console.log(payload)
-  }
-} satisfies {
-  [T in ActionType]: (this: Store, payload: Extract<Actions, { type: T }>['payload']) => void
-};
+export type Payload<T extends ActionType> = Extract<Actions, { type: T }>['payload']
 
-export abstract class VirtualStore {
-  public readonly model: Model
+export interface VirtualStore {
+  getRange(): ItemsRange;
+  update(actions: Actions): void;
+}
+
+export class Store implements VirtualStore {
+  private readonly model: Model
+
+  private viewportSize: number = 0;
+
+  private scrollDirection: ScrollDirection = ScrollDirection.SCROLL_IDLE;
 
   public constructor(
-    public readonly length: number,
-    public readonly size: number = ESTIMATED_SIZE,
-    public readonly overscan: number = OVERSCAN,
-    public readonly adapter: Adapter
+    private readonly length: number,
+    private readonly size: number = ESTIMATED_SIZE,
+    private readonly overscan: number = OVERSCAN,
   ) {
     this.model = new Model(length, size)
   }
-
-  public abstract update<T extends ActionType>(type: T, payload: Extract<Actions, { type: T }>['payload']): void;
-  public abstract update(actions: Actions): void;
-
-  public abstract getRange(): ItemsRange;
-}
-
-export class Store extends VirtualStore {
-  public version: Signal<number> = this.adapter.createSignal(0);
-
-  public viewportSize: number = 0;
-
-  public scrollDirection: ScrollDirection = ScrollDirection.SCROLL_IDLE;
 
   public getRange() {
     let startIndex: number = 0;
@@ -77,9 +61,34 @@ export class Store extends VirtualStore {
     ] as ItemsRange;
   }
 
-  public update<T extends ActionType>(...actions: [Actions] | [T, Extract<Actions, { type: T }>["payload"]]) {
-    const [type, payload] = actions.length === 1 ? [actions[0].type, actions[0].payload] : actions
-    actions[type].call(this, payload)
+  public update({ type, payload }: Actions): void {
+    let mutated = 0
+
+    switch (type) {
+      case ActionType.VIEWPORT_RESIZE: {
+        if (this.viewportSize !== payload) {
+          this.viewportSize = payload
+          mutated = UPDATE_VIRTUAL_STATE + UPDATE_SIZE_EVENT
+        }
+        break;
+      }
+      case ActionType.VIEWPORT_ITEM_RESIZE: {
+        const updated = payload.filter(([index, size]) => this.model.indices[index] !== size)
+
+        if (!updated.length) break;
+
+        for (const [index, size] of updated) {
+          setItemSize(this.model, index, size);
+        }
+
+        mutated = UPDATE_VIRTUAL_STATE + UPDATE_SIZE_EVENT;
+        break;
+      }
+    }
+
+    if (mutated) {
+
+    }
   }
 
   private calculateRange(offset: number) {
