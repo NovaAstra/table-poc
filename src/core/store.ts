@@ -14,6 +14,8 @@ export enum ScrollDirection {
   SCROLL_UP
 }
 
+export type Subscriber = (sync?: boolean) => void;
+
 export type Action<T extends ActionType, P> = Readonly<{ type: T, payload: P }>;
 
 export type Actions =
@@ -32,7 +34,11 @@ export class Store implements VirtualStore {
 
   private viewportSize: number = 0;
 
+  private scrollOffset: number = 0;
+
   private scrollDirection: ScrollDirection = ScrollDirection.SCROLL_IDLE;
+
+  private subscribers = new Set<[number, Subscriber]>()
 
   public constructor(
     private readonly length: number,
@@ -62,7 +68,8 @@ export class Store implements VirtualStore {
   }
 
   public update({ type, payload }: Actions): void {
-    let mutated = 0
+    let mutated: number = 0
+    let shouldSync: boolean = false;
 
     switch (type) {
       case ActionType.VIEWPORT_RESIZE: {
@@ -87,8 +94,20 @@ export class Store implements VirtualStore {
     }
 
     if (mutated) {
+      this.subscribers.forEach(([target, callback]) => {
+        if (!(mutated & target)) return;
 
+        callback(shouldSync)
+      })
     }
+  }
+
+  public subscribe(target: number, callback: Subscriber) {
+    const sub: [number, Subscriber] = [target, callback];
+    this.subscribers.add(sub);
+    return () => {
+      this.subscribers.delete(sub);
+    };
   }
 
   private calculateRange(offset: number) {

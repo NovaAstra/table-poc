@@ -2,7 +2,7 @@ import { Adapter } from "./adapter"
 import { GridResizer } from "./resizer"
 import { Scroller } from "./scroller"
 import { Store } from "./store"
-import { ESTIMATED_SIZE, OVERSCAN } from "./constants"
+import { ESTIMATED_SIZE, OVERSCAN, UPDATE_VIRTUAL_STATE } from "./constants"
 
 export type Size = [height: number, width: number]
 
@@ -38,6 +38,13 @@ export class Table {
 
     this.scroller = new Scroller()
     this.resizer = new GridResizer(this.hs, this.vs)
+
+    this.hs.subscribe(UPDATE_VIRTUAL_STATE, () => {
+
+    })
+    this.vs.subscribe(UPDATE_VIRTUAL_STATE, () => {
+
+    })
   }
 
   private getOptions(
