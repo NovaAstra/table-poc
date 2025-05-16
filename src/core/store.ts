@@ -1,5 +1,5 @@
 import { type ItemsRange, type ItemResize } from "./types"
-import { Model, calculateRange, setItemSize } from "./model"
+import { Model, setItemSize } from "./model"
 import { ESTIMATED_SIZE, OVERSCAN, UPDATE_SIZE_EVENT, UPDATE_VIRTUAL_STATE } from "./constants"
 import { min, max } from "./math"
 
@@ -14,7 +14,10 @@ export enum ScrollDirection {
   SCROLL_UP
 }
 
-export type Subscriber = (sync?: boolean) => void;
+export enum ScrollBehavior {
+  AUTO,
+  SMOOTH
+}
 
 export type Action<T extends ActionType, P> = Readonly<[type: T, payload: P]>;
 
@@ -24,28 +27,31 @@ export type Actions =
 
 export type Payload<T extends ActionType> = Extract<Actions, { type: T }>[1]
 
+export interface VirtualStoreOptions {
+  count: number;
+  size?: number;
+  overscan?: number;
+  debug?: boolean;
+}
+
 export interface VirtualStore {
   getRange(): ItemsRange;
   update(...actions: Actions): void;
 }
 
 export class Store implements VirtualStore {
-  private readonly model: Model
+  public options!: Required<VirtualStoreOptions>;
+  public readonly cache: Model;
 
   private viewportSize: number = 0;
-
   private scrollOffset: number = 0;
-
   private scrollDirection: ScrollDirection = ScrollDirection.SCROLL_IDLE;
 
-  private subscribers = new Set<[number, Subscriber]>()
+  public constructor(opts: VirtualStoreOptions) {
+    this.setOptions(opts)
 
-  public constructor(
-    private readonly length: number,
-    private readonly size: number = ESTIMATED_SIZE,
-    private readonly overscan: number = OVERSCAN,
-  ) {
-    this.model = new Model(length, size)
+    const { count, size } = this.options
+    this.cache = new Model(count, size)
   }
 
   public getRange() {
@@ -96,23 +102,22 @@ export class Store implements VirtualStore {
     }
 
     if (mutated) {
-      this.subscribers.forEach(([target, callback]) => {
-        if (!(mutated & target)) return;
 
-        callback(shouldSync)
-      })
     }
   }
 
-  public subscribe(target: number, callback: Subscriber) {
-    const sub: [number, Subscriber] = [target, callback];
-    this.subscribers.add(sub);
-    return () => {
-      this.subscribers.delete(sub);
-    };
+  private setOptions(opts: VirtualOptions) {
+    Object.entries(opts).forEach(([key, value]) => {
+      if (typeof value === 'undefined') delete (opts as any)[key]
+    })
+
+    this.options = {
+      size: ESTIMATED_SIZE,
+      overscan: OVERSCAN,
+      debug: false,
+      ...opts,
+    }
   }
 
-  private calculateRange(offset: number) {
-    return calculateRange(this.model, offset, this.viewportSize, 0);
-  }
+  public subscribe() { }
 }

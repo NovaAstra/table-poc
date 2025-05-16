@@ -1,15 +1,5 @@
 <script lang="ts" setup>
-import Row from "./Row.vue";
-import Cell from "./Cell.vue";
-import { useVirtualScroll } from "./useVirtualScroll";
 
-const { rows, cols } = useVirtualScroll();
-
-const data = [
-  [0, 1, 2, 3, 5, 6],
-  [10, 11, 12, 13, 15, 16],
-  [20, 21, 22, 23, 25, 26],
-];
 </script>
 
 <template>
@@ -17,13 +7,7 @@ const data = [
     <div class="zen-virtual-panel"></div>
     <div class="zen-scroll-table-clip">
       <table cellspacing="0">
-        <tbody>
-          <Row v-for="(row, ridx) in rows" :key="ridx">
-            <Cell v-for="(col, cidx) in cols" :key="cidx">
-              {{ data[row.index][col.index] }}
-            </Cell>
-          </Row>
-        </tbody>
+       
       </table>
     </div>
   </div>
